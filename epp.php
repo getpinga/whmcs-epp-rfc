@@ -63,6 +63,11 @@ function epp_getConfigArray($params = array())
 			'Default' => '700',
 			'Description' => 'System port number 700 has been assigned by the IANA for mapping EPP onto TCP.'
 		),
+		'tls_version' => array(
+			'FriendlyName' => 'Use TLS v1.3',
+			'Type' => 'yesno',
+			'Description' => 'Use more secure TLS v1.3 if the registry supports it.'
+		),
 		'verify_peer' => array(
 			'FriendlyName' => 'Verify Peer',
 			'Type' => 'yesno',
@@ -1269,99 +1274,11 @@ function epp_GetEPPCode($params = array())
 		$r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
 		$eppcode = (string)$r->authInfo->pw;
 
-// If EPP Code is returned, return it for display to the end user
-//	if (!empty($s)) {
-//		$s->logout($params['registrarprefix']);
-//	}
-//return array('eppcode' => $eppcode);
-
-		$from = $to = array();
-		$from[] = '/{{ id }}/';
-
-		// aici nu e corect, trebuie admin
-
-		$to[] = htmlspecialchars((string)$r->registrant);
-		$from[] = '/{{ clTRID }}/';
-		$clTRID = str_replace('.', '', round(microtime(1), 3));
-		$to[] = htmlspecialchars($params['registrarprefix'] . '-contact-info-' . $clTRID);
-		$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-	<info>
-	  <contact:info
-	   xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
-		<contact:id>{{ id }}</contact:id>
-	  </contact:info>
-	</info>
-	<clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-		$r = $s->write($xml, __FUNCTION__);
-		$r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->infData[0];
-		$toEmail = (string)$r->email;
-		global $CONFIG;
-		$mail = new PHPMailer();
-		$mail->From = $CONFIG['SystemEmailsFromEmail'];
-		$mail->FromName = $CONFIG['SystemEmailsFromName'];
-		$mail->Subject = strtoupper($params['domainname']) . ' >> Information You Requested ';
-		$mail->CharSet = $CONFIG['Charset'];
-		if ($CONFIG['MailType'] == 'mail') {
-			$mail->Mailer = 'mail';
+		// If EPP Code is returned, return it for display to the end user
+		if (!empty($s)) {
+			$s->logout($params['registrarprefix']);
 		}
-		else {
-			$mail->IsSMTP();
-			$mail->Host = $CONFIG['SMTPHost'];
-			$mail->Port = $CONFIG['SMTPPort'];
-			$mail->Hostname = $_SERVER['SERVER_NAME'];
-			if ($CONFIG['SMTPSSL']) {
-				$mail->SMTPSecure = $CONFIG['SMTPSSL'];
-			}
-
-			if ($CONFIG['SMTPUsername']) {
-				$mail->SMTPAuth = true;
-				$mail->Username = $CONFIG['SMTPUsername'];
-				$mail->Password = decrypt($CONFIG['SMTPPassword']);
-			}
-
-			$mail->Sender = $CONFIG['Email'];
-		}
-
-		$mail->AddAddress($toEmail);
-		$message = "
-=============================================
-DOMAIN INFORMATION YOU REQUESTED
-=============================================
-
-The authorization information you requested is as follows:
-
-Domain Name: " . strtoupper($params['domainname']) . "
-
-Authorization Info: " . $eppcode . "
-
-Regards,
-" . $CONFIG['CompanyName'] . "
-" . $CONFIG['Domain'] . "
-
-
---------------------------------------------------------------------------------
-Copyright (C) " . date('Y') . " " . $CONFIG['CompanyName'] . " All rights reserved.
-";
-		$mail->Body = nl2br(htmlspecialchars($message));
-		$mail->AltBody = $message; //text
-		if (!$mail->Send()) {
-			_epp_log(__FUNCTION__, $mail);
-			throw new exception('There has been an error sending the message. ' . $mail->ErrorInfo);
-		}
-
-		$mail->ClearAddresses();
-	}
-
-	catch(phpmailerException $e) {
-		$return = array(
-			'error' => 'There has been an error sending the message. ' . $e->getMessage()
-		);
+		return array('eppcode' => $eppcode);
 	}
 
 	catch(exception $e) {
@@ -1954,7 +1871,12 @@ class epp_epp_client
 		if ($host != $this->params['host']) {
 			throw new exception("Unknown EPP server '$host'");
 		}
-
+		
+		$tls_version = '1.2';
+		if ($this->params['tls_version'] == 'on') {
+			$tls_version = '1.3';
+		}
+		
 		$opts = array(
 			'ssl' => array(
 				'verify_peer' => $ssl['verify_peer'],
@@ -1968,7 +1890,7 @@ class epp_epp_client
 			)
 		);
 		$context = stream_context_create($opts);
-		$this->socket = stream_socket_client("tlsv1.3://{$host}:{$port}", $errno, $errmsg, $timeout, STREAM_CLIENT_CONNECT, $context);
+		$this->socket = stream_socket_client("tlsv{$tls_version}://{$host}:{$port}", $errno, $errmsg, $timeout, STREAM_CLIENT_CONNECT, $context);
 
 
 		if (!$this->socket) {
