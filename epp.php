@@ -2008,8 +2008,8 @@ class epp_epp_client
 		$lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
 		$numbers = "1234567890";
 		$specialSymbols = "!=+-";
-		$minLength = 14;
-		$maxLength = 16;
+		$minLength = 13;
+		$maxLength = 13;
 		$length = mt_rand($minLength, $maxLength);
 
 		// Include at least one character from each set
@@ -2024,7 +2024,7 @@ class epp_epp_client
 			$result .= $chars[mt_rand(0, strlen($chars) - 1)];
 		}
 
-		return $result;
+		return 'aA1' . $result;
 	}
 	
 	function generateRandomString() 
@@ -2054,7 +2054,7 @@ function _epp_log($func, $params = false)
 {
 
 	// comment line below to see logs
-	return true;
+	//return true;
 
 	$handle = fopen(dirname(__FILE__) . '/epp.log', 'a');
 	ob_start();
