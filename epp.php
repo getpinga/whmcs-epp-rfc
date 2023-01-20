@@ -2008,8 +2008,8 @@ class epp_epp_client
 		$lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
 		$numbers = "1234567890";
 		$specialSymbols = "!=+-";
-		$minLength = 13;
-		$maxLength = 13;
+		$minLength = 16;
+		$maxLength = 18;
 		$length = mt_rand($minLength, $maxLength);
 
 		// Include at least one character from each set
@@ -2024,7 +2024,7 @@ class epp_epp_client
 			$result .= $chars[mt_rand(0, strlen($chars) - 1)];
 		}
 
-		return 'aA1' . $result;
+		return $result;
 	}
 	
 	function generateRandomString() 
