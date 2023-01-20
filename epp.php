@@ -2009,7 +2009,7 @@ class epp_epp_client
 		$numbers = "1234567890";
 		$specialSymbols = "!=+-";
 		$minLength = 16;
-		$maxLength = 18;
+		$maxLength = 16;
 		$length = mt_rand($minLength, $maxLength);
 
 		// Include at least one character from each set
