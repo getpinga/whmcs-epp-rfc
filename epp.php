@@ -1965,40 +1965,44 @@ class epp_epp_client
 
 	function read()
 	{
-		_epp_log('================= read-this =================', $this);
-		if (feof($this->socket)) {
-			throw new exception('Connection appears to have closed.');
-		}
-
-		$hdr = @fread($this->socket, 4);
-		if (empty($hdr)) {
-			throw new exception('Error reading from server.');
-		}
-
-		$unpacked = unpack('N', $hdr);
-		$xml = fread($this->socket, ($unpacked[1] - 4));
-		$xml = preg_replace('/></', ">\n<", $xml);
-		_epp_log('================= read =================', $xml);
-		return $xml;
+	    _epp_log('================= read-this =================', $this);
+	    $hdr = stream_get_contents($this->socket, 4);
+	    if ($hdr === false) {
+		throw new exception('Connection appears to have closed.');
+	    }
+	    if (strlen($hdr) < 4) {
+		throw new exception('Failed to read header from the connection.');
+	    }
+	    $unpacked = unpack('N', $hdr);
+	    $xml = fread($this->socket, ($unpacked[1] - 4));
+	    $xml = preg_replace('/></', ">\n<", $xml); 
+	    _epp_log('================= read =================', $xml);
+	    return $xml;
 	}
 
 	function write($xml, $action = 'Unknown')
 	{
-		_epp_log('================= send-this =================', $this);
-		_epp_log('================= send =================', $xml);
-		@fwrite($this->socket, pack('N', (strlen($xml) + 4)) . $xml);
-		$r = $this->read();
-		_epp_modulelog($xml, $r, $action);
-		$r = new SimpleXMLElement($r);
-		if ($r->response->result->attributes()->code >= 2000) {
-			throw new exception($r->response->result->msg);
-		}
+	    _epp_log('================= send-this =================', $this);
+	    _epp_log('================= send =================', $xml);
+	    if (fwrite($this->socket, pack('N', (strlen($xml) + 4)) . $xml) === false) {
+		throw new exception('Error writing to the connection.');
+	    }
+	    $r = simplexml_load_string($this->readResponse());
+	    _epp_modulelog($xml, $r, $action);
+	    if ($r->response->result->attributes()->code >= 2000) {
+		throw new exception($r->response->result->msg);
+	    }
 		return $r;
 	}
 
 	function disconnect()
 	{
-		return @fclose($this->socket);
+		$result = fclose($this->socket);
+		if (!$result) {
+ 			throw new exception('Error closing the connection.');
+		}
+		$this->socket = null;
+		return $result;
 	}
 
 	function generateObjectPW($objType = 'none')
