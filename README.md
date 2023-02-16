@@ -24,6 +24,8 @@ This module is supposed to work with:
 
 - ZADNA - .za
 
+- ZDNS - .all
+
 # WHMCS Module Installation instructions
 
 1. Download and install [WHMCS](https://whmcs.com/)
