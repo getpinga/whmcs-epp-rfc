@@ -10,6 +10,8 @@ This module is supposed to work with:
 
 - CoCCA - all
 
+- CORE/Knipp - all
+
 - GoDaddy Registry - all
 
 - Google Nomulus - all
