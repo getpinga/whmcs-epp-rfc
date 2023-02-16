@@ -16,6 +16,8 @@ This module is supposed to work with:
 
 - HKIRC - .hk
 
+- Identity Digital - all
+
 - RoTLD - .ro
 
 - SIDN - all
