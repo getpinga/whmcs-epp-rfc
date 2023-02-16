@@ -1,3 +1,27 @@
+# Compatibility
+
+This module is supposed to work with:
+
+- Any Generic RFC EPP registry.
+
+- Caucasus Online - .ge
+
+- CentralNic - all
+
+- CoCCA - all
+
+- GoDaddy Registry - all
+
+- Google Nomulus - all
+
+- HKIRC - .hk
+
+- RoTLD - .ro
+
+- SIDN - all
+
+- ZADNA - .za
+
 # WHMCS Module Installation instructions
 
 1. Download and install [WHMCS](https://whmcs.com/)
