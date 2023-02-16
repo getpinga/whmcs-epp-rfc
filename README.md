@@ -22,6 +22,8 @@ This module is supposed to work with:
 
 - RoTLD - .ro
 
+- RyCE - all
+
 - SIDN - all
 
 - ZADNA - .za
