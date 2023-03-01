@@ -1987,7 +1987,7 @@ class epp_epp_client
 	    if (fwrite($this->socket, pack('N', (strlen($xml) + 4)) . $xml) === false) {
 		throw new exception('Error writing to the connection.');
 	    }
-	    $r = simplexml_load_string($this->readResponse());
+	    $r = simplexml_load_string($this->read());
 	    _epp_modulelog($xml, $r, $action);
             if (isset($r->response) && $r->response->result->attributes()->code >= 2000) {
                 throw new exception($r->response->result->msg);
