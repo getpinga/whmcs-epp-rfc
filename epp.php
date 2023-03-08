@@ -1882,9 +1882,9 @@ class epp_epp_client
 				'verify_peer' => $ssl['verify_peer'],
 				'verify_peer_name' => false,
 				'verify_host' => false,
-				//'cafile' => __DIR__ . '/cafile/' . $ssl['cafile'],
-				'local_cert' => __DIR__ . '/local_cert/' . $ssl['local_cert'],
-				'local_pk' => __DIR__ . '/local_pk/' . $ssl['local_pk'],
+				//'cafile' => __DIR__ . '/' . $ssl['cafile'],
+				'local_cert' => __DIR__ . '/' . $ssl['local_cert'],
+				'local_pk' => __DIR__ . '/' . $ssl['local_pk'],
 				//'passphrase' => $ssl['passphrase'],
 				'allow_self_signed' => true
 			)
