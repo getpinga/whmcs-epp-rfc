@@ -766,7 +766,6 @@ function epp_SaveRegistrarLock($params = array())
 
         $rem = $add = array();
         foreach(array(
-            'clientUpdateProhibited',
             'clientDeleteProhibited',
             'clientTransferProhibited'
         ) as $st) {
