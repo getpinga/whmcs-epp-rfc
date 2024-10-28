@@ -1469,6 +1469,200 @@ function epp_RequestDelete($params = array())
     return $return;
 }
 
+function epp_manageDNSSECDSRecords($params = array())
+{
+    _epp_log(__FUNCTION__, $params);
+    $return = array();
+    try {
+        $s = _epp_startEppClient($params);
+
+        if (isset($_POST['command']) && ($_POST['command'] === 'secDNSadd')) {
+            $keyTag = $_POST['keyTag'];
+            $alg = $_POST['alg'];
+            $digestType = $_POST['digestType'];
+            $digest = $_POST['digest'];
+
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+
+            $from[] = '/{{ keyTag }}/';
+            $to[] = htmlspecialchars($keyTag);
+
+            $from[] = '/{{ alg }}/';
+            $to[] = htmlspecialchars($alg);
+
+            $from[] = '/{{ digestType }}/';
+            $to[] = htmlspecialchars($digestType);
+
+            $from[] = '/{{ digest }}/';
+            $to[] = htmlspecialchars($digest);
+
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($params['registrarprefix'] . '-domain-update-' . $clTRID);
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <update>
+      <domain:update
+       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+       xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+        <domain:name>{{ name }}</domain:name>
+      </domain:update>
+    </update>
+    <extension>
+      <secDNS:update xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1">
+        <secDNS:add>
+          <secDNS:dsData>
+            <secDNS:keyTag>{{ keyTag }}</secDNS:keyTag>
+            <secDNS:alg>{{ alg }}</secDNS:alg>
+            <secDNS:digestType>{{ digestType }}</secDNS:digestType>
+            <secDNS:digest>{{ digest }}</secDNS:digest>
+          </secDNS:dsData>
+        </secDNS:add>
+      </secDNS:update>
+    </extension>    
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $s->write($xml, __FUNCTION__);
+        }
+
+        if (isset($_POST['command']) && ($_POST['command'] === 'secDNSrem')) {
+            $keyTag = $_POST['keyTag'];
+            $alg = $_POST['alg'];
+            $digestType = $_POST['digestType'];
+            $digest = $_POST['digest'];
+
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+
+            $from[] = '/{{ keyTag }}/';
+            $to[] = htmlspecialchars($keyTag);
+
+            $from[] = '/{{ alg }}/';
+            $to[] = htmlspecialchars($alg);
+
+            $from[] = '/{{ digestType }}/';
+            $to[] = htmlspecialchars($digestType);
+
+            $from[] = '/{{ digest }}/';
+            $to[] = htmlspecialchars($digest);
+
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($params['registrarprefix'] . '-domain-update-' . $clTRID);
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <update>
+      <domain:update
+       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+       xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+        <domain:name>{{ name }}</domain:name>
+      </domain:update>
+    </update>
+    <extension>
+      <secDNS:update xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1">
+        <secDNS:rem>
+          <secDNS:dsData>
+            <secDNS:keyTag>{{ keyTag }}</secDNS:keyTag>
+            <secDNS:alg>{{ alg }}</secDNS:alg>
+            <secDNS:digestType>{{ digestType }}</secDNS:digestType>
+            <secDNS:digest>{{ digest }}</secDNS:digest>
+          </secDNS:dsData>
+        </secDNS:rem>
+      </secDNS:update>
+    </extension>    
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $s->write($xml, __FUNCTION__);
+        }
+
+        $from = $to = array();
+        $from[] = '/{{ name }}/';
+        $to[] = htmlspecialchars($params['domainname']);
+        $from[] = '/{{ clTRID }}/';
+        $clTRID = str_replace('.', '', round(microtime(1), 3));
+        $to[] = htmlspecialchars($params['registrarprefix'] . '-domain-info-' . $clTRID);
+        $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <info>
+      <domain:info
+       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+       xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+        <domain:name hosts="all">{{ name }}</domain:name>
+      </domain:info>
+    </info>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+        $r = $s->write($xml, __FUNCTION__);
+
+        $secDNSdsData = array();
+        if ($r->response->extension && $r->response->extension->children('urn:ietf:params:xml:ns:secDNS-1.1')->infData) {
+            $DSRecords = 'YES';
+            $i = 0;
+            $r = $r->response->extension->children('urn:ietf:params:xml:ns:secDNS-1.1')->infData;
+            foreach($r->dsData as $dsData) {
+                $i++;
+                $secDNSdsData[$i]["domainid"] = (int)$params['domainid'];
+                $secDNSdsData[$i]["keyTag"] = (string)$dsData->keyTag;
+                $secDNSdsData[$i]["alg"] = (int)$dsData->alg;
+                $secDNSdsData[$i]["digestType"] = (int)$dsData->digestType;
+                $secDNSdsData[$i]["digest"] = (string)$dsData->digest;
+            }
+        }
+        else {
+            $DSRecords = "You don't have any DS records";
+        }
+
+        $return = array(
+            'templatefile' => 'manageDNSSECDSRecords',
+            'requirelogin' => true,
+            'vars' => array(
+                'DSRecords' => $DSRecords,
+                'DSRecordslist' => $secDNSdsData
+            )
+        );
+    }
+
+    catch(exception $e) {
+        $return = array(
+            'templatefile' => 'manageDNSSECDSRecords',
+            'requirelogin' => true,
+            'vars' => array(
+                'error' => $e->getMessage()
+            )
+        );
+    }
+
+    if (!empty($s)) {
+        $s->logout($params['registrarprefix']);
+    }
+
+    return $return;
+}
+
+function epp_ClientAreaCustomButtonArray()
+{
+    $buttonarray = array(
+        Lang::Trans('Manage DNSSEC DS Records') => 'manageDNSSECDSRecords'
+    );
+    
+    return $buttonarray;
+}
+
 function epp_AdminCustomButtonArray($params = array())
 {
     _epp_log(__FUNCTION__, $params);
